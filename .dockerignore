@@ -6,6 +6,10 @@
 README.md
 *.md
 
+# Keep frontend files
+!index.html
+!app.js
+
 # Docker
 Dockerfile
 .dockerignore

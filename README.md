@@ -4,11 +4,15 @@ A simple Go web application that can be run locally or via Docker.
 
 ## Features
 
-- Simple HTTP server with a beautiful web interface
-- Health check endpoint at `/health`
-- Configurable port via environment variable
-- Docker support with multi-stage build
-- Non-root user for security
+- **Vue.js Spreadsheet Interface**: Interactive 10x10 to 100x26 spreadsheet
+- **Formula Support**: Enter values or formulas (e.g., =A1+B1, =SUM(A1:A10))
+- **Dynamic Resizing**: Add/remove rows and columns
+- **Cell Navigation**: Keyboard arrow keys for navigation
+- **Data Export**: Export to CSV format
+- **Health check endpoint** at `/health`
+- **Configurable port** via environment variable
+- **Docker support** with multi-stage build
+- **Non-root user** for security
 
 ## Quick Start
 
@@ -102,8 +106,33 @@ care-plan-calculator/
 
 ## API Endpoints
 
-- `GET /` - Main web interface
+- `GET /` - Vue.js spreadsheet interface
 - `GET /health` - Health check endpoint (returns JSON)
+- `GET /index.html` - Main HTML file
+- `GET /app.js` - Vue.js application logic
+
+## Spreadsheet Features
+
+### Basic Operations
+- **Cell Input**: Click any cell to enter values or formulas
+- **Formula Support**: Use `=` to start formulas (e.g., `=A1+B1`, `=SUM(A1:A10)`)
+- **Mathematical Functions**: `SUM()`, `AVERAGE()` supported
+- **Cell References**: Reference other cells using A1 notation
+
+### Navigation
+- **Mouse**: Click to select cells
+- **Keyboard**: Use arrow keys to navigate between cells
+- **Formula Bar**: Shows and edits the current cell's formula
+
+### Spreadsheet Management
+- **Add Rows**: Increase up to 100 rows
+- **Add Columns**: Increase up to 26 columns (A-Z)
+- **Delete Rows/Columns**: Remove one at a time
+- **Clear All**: Reset the entire spreadsheet
+
+### Data Export
+- **CSV Export**: Download spreadsheet data as CSV file
+- **Formula Preservation**: Exports calculated values
 
 ## Security Features
 

@@ -14,62 +14,16 @@ func main() {
 		port = "8080"
 	}
 
+	// Serve static files
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		html := fmt.Sprintf(`
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Care Plan Calculator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #333;
-            text-align: center;
-        }
-        .info {
-            background-color: #e8f4fd;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 20px 0;
-        }
-        .timestamp {
-            color: #666;
-            font-size: 0.9em;
-            text-align: center;
-            margin-top: 20px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🏥 Care Plan Calculator</h1>
-        <div class="info">
-            <h2>Welcome!</h2>
-            <p>This is a simple Go application that can be run via Docker.</p>
-            <p><strong>Status:</strong> ✅ Running successfully</p>
-            <p><strong>Port:</strong> %s</p>
-        </div>
-        <div class="timestamp">
-            Server started at: %s
-        </div>
-    </div>
-</body>
-</html>`, port, time.Now().Format("2006-01-02 15:04:05"))
+		// Serve index.html for the root path
+		if r.URL.Path == "/" {
+			http.ServeFile(w, r, "index.html")
+			return
+		}
 		
-		w.Header().Set("Content-Type", "text/html")
-		fmt.Fprint(w, html)
+		// Serve other static files
+		http.ServeFile(w, r, r.URL.Path[1:])
 	})
 
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {

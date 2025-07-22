@@ -16,6 +16,9 @@ COPY . .
 # Build the application
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
 
+# Copy frontend files to runtime stage
+COPY index.html app.js ./
+
 # Runtime stage
 FROM alpine:latest
 
