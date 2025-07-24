@@ -300,13 +300,69 @@ createApp({
                 const result = await response.json();
                 console.log('Evaluation result:', result);
                 
-                // Show success message (you can enhance this with a proper notification system)
-                alert('Sheet evaluated successfully! Check console for details.');
+                // Repopulate the table with the evaluated data
+                this.populateTableWithResult(result);
+                
+                // Show success message
+                alert('Sheet evaluated successfully!');
                 
             } catch (error) {
                 console.error('Error evaluating sheet:', error);
                 alert('Error evaluating sheet: ' + error.message);
             }
+        },
+        
+        // Populate table with evaluated result
+        populateTableWithResult(result) {
+            if (!Array.isArray(result) || result.length === 0) {
+                console.error('Invalid result format:', result);
+                return;
+            }
+            
+            // Clear existing data
+            this.cells = {};
+            this.headers = {};
+            
+            // Process header row (first row)
+            if (result.length > 0) {
+                const headerRow = result[0];
+                this.columns.forEach((col, index) => {
+                    const headerValue = headerRow[index + 1] || '';
+                    if (headerValue) {
+                        this.headers[col] = headerValue;
+                    }
+                });
+            }
+            
+            // Process data rows (skip header row)
+            for (let i = 1; i < result.length; i++) {
+                const rowData = result[i];
+                const rowNum = i; // Row numbers start from 1
+                
+                this.columns.forEach((col, index) => {
+                    const cellValue = rowData[index + 1] || '';
+                    const cellKey = this.getCellKey(rowNum, col);
+                    
+                    // Determine if this is a formula or a value
+                    if (cellValue.startsWith('=')) {
+                        // It's a formula
+                        this.cells[cellKey] = {
+                            formula: cellValue,
+                            displayValue: cellValue,
+                            error: false
+                        };
+                    } else {
+                        // It's a value
+                        this.cells[cellKey] = {
+                            formula: '',
+                            displayValue: cellValue,
+                            error: false
+                        };
+                    }
+                });
+            }
+            
+            console.log('Table repopulated with evaluated data');
         },
         
         // Data export

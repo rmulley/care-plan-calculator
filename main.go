@@ -60,9 +60,6 @@ func main() {
 			return
 		}
 
-		// Log the received data for debugging
-		log.Printf("Received sheet data: %+v", sheet)
-
         newSheet := sheet.Evaluate()
 
 		// Send the response
