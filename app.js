@@ -7,12 +7,37 @@ createApp({
             colCount: 10,
             cells: {},
             selectedCell: null,
-            columns: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+            allColumns: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
         };
+    },
+    watch: {
+        rowCount(newValue) {
+            // Enforce maximum row limit
+            if (newValue > 100) {
+                this.rowCount = 100;
+            }
+            // Enforce minimum row limit
+            if (newValue < 1) {
+                this.rowCount = 1;
+            }
+        },
+        colCount(newValue) {
+            // Enforce maximum column limit
+            if (newValue > 26) {
+                this.colCount = 26;
+            }
+            // Enforce minimum column limit
+            if (newValue < 1) {
+                this.colCount = 1;
+            }
+        }
     },
     computed: {
         rows() {
             return Array.from({ length: this.rowCount }, (_, i) => i + 1);
+        },
+        columns() {
+            return this.allColumns.slice(0, this.colCount);
         },
         formulaCellCount() {
             return Object.values(this.cells).filter(cell => cell.formula && cell.formula.startsWith('=')).length;
@@ -141,7 +166,7 @@ createApp({
             const row = parseInt(cellRef.match(/[0-9]+/)[0]);
             
             // Check if cell exists
-            if (row > this.rowCount || !this.columns.includes(col)) {
+            if (row > this.rowCount || !this.allColumns.includes(col) || this.allColumns.indexOf(col) >= this.colCount) {
                 return 0;
             }
             
@@ -180,6 +205,8 @@ createApp({
         addRow() {
             if (this.rowCount < 100) {
                 this.rowCount++;
+            } else {
+                console.log('Maximum row limit (100) reached');
             }
         },
         
@@ -198,13 +225,15 @@ createApp({
         addColumn() {
             if (this.colCount < 26) {
                 this.colCount++;
+            } else {
+                console.log('Maximum column limit (26) reached');
             }
         },
         
         deleteColumn() {
             if (this.colCount > 1) {
                 // Remove cells in the last column
-                const lastCol = this.columns[this.colCount - 1];
+                const lastCol = this.allColumns[this.colCount - 1];
                 this.rows.forEach(row => {
                     const key = this.getCellKey(row, lastCol);
                     delete this.cells[key];
