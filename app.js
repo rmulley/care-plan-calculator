@@ -303,9 +303,6 @@ createApp({
                 // Repopulate the table with the evaluated data
                 this.populateTableWithResult(result);
                 
-                // Show success message
-                alert('Sheet evaluated successfully!');
-                
             } catch (error) {
                 console.error('Error evaluating sheet:', error);
                 alert('Error evaluating sheet: ' + error.message);
