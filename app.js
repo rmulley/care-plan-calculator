@@ -6,6 +6,7 @@ createApp({
             rowCount: 10,
             colCount: 10,
             cells: {},
+            headers: {},
             selectedCell: null,
             allColumns: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
         };
@@ -238,13 +239,25 @@ createApp({
                     const key = this.getCellKey(row, lastCol);
                     delete this.cells[key];
                 });
+                // Remove header for the deleted column
+                delete this.headers[lastCol];
                 this.colCount--;
             }
         },
         
         clearAll() {
             this.cells = {};
+            this.headers = {};
             this.selectedCell = null;
+        },
+        
+        // Header management
+        getHeaderValue(col) {
+            return this.headers[col] || '';
+        },
+        
+        updateHeader(col, value) {
+            this.headers[col] = value;
         },
         
         // Data export
@@ -266,6 +279,17 @@ createApp({
             // Header row with column letters
             for (let i = 0; i < this.colCount; i++) {
                 csv += this.columns[i] + ',';
+            }
+            csv = csv.slice(0, -1) + '\n';
+            
+            // Custom header row with titles
+            csv += ',';
+            for (let i = 0; i < this.colCount; i++) {
+                const col = this.columns[i];
+                const headerValue = this.getHeaderValue(col) || '';
+                // Escape quotes and wrap in quotes if contains comma
+                const escapedValue = headerValue.toString().replace(/"/g, '""');
+                csv += (headerValue.includes(',') ? `"${escapedValue}"` : escapedValue) + ',';
             }
             csv = csv.slice(0, -1) + '\n';
             
