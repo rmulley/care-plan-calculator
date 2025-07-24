@@ -59,8 +59,7 @@ func main() {
 			http.Error(w, fmt.Sprintf("Error parsing JSON: %v", err), http.StatusBadRequest)
 			return
 		}
-
-        newSheet := sheet.Evaluate()
+		newSheet := sheet.Evaluate()
 
 		// Send the response
 		if err := json.NewEncoder(w).Encode(newSheet); err != nil {
@@ -72,5 +71,3 @@ func main() {
 	log.Printf("Server starting on port %s", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
-
-

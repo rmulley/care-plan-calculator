@@ -120,8 +120,25 @@
             cursor: not-allowed;
         }
 
+        .btn-info:disabled {
+            background: #6c757d;
+            color: #ffffff;
+        }
+
         .btn:disabled:hover {
             background: inherit;
+        }
+
+        /* Ensure evaluate button maintains visibility during loading */
+        .btn-info {
+            min-width: 80px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-info:disabled {
+            background: #6c757d !important;
+            color: #ffffff !important;
+            opacity: 0.8;
         }
 
         .spreadsheet-container {
@@ -296,7 +313,12 @@
                 <div class="control-group">
                     <button class="btn btn-warning" @click="clearAll">Clear All</button>
                     <button class="btn btn-primary" @click="exportData">Export CSV</button>
-                    <button class="btn btn-info" @click="evaluateSheet">Evaluate</button>
+                    <button class="btn btn-info" @click="evaluateSheet" :disabled="isEvaluating" v-if="!isEvaluating">
+                        Evaluate
+                    </button>
+                    <button class="btn btn-info" disabled v-if="isEvaluating">
+                        Evaluating...
+                    </button>
                 </div>
             </div>
 
@@ -367,6 +389,6 @@
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <script src="app.js?v=1"></script>
 </body>
 </html> 

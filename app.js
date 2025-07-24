@@ -8,7 +8,8 @@ createApp({
             cells: {},
             headers: {},
             selectedCell: null,
-            allColumns: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+            allColumns: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
+            isEvaluating: false
         };
     },
     watch: {
@@ -259,6 +260,9 @@ createApp({
         
         // Evaluate sheet data
         async evaluateSheet() {
+            this.isEvaluating = true;
+            const startTime = Date.now();
+            
             try {
                 // Prepare the sheet data in the required format
                 const sheetData = [];
@@ -282,8 +286,6 @@ createApp({
                     sheetData.push(rowData);
                 }
                 
-                console.log('Sending sheet data:', sheetData);
-                
                 // Make the HTTP POST request
                 const response = await fetch('/evaluate', {
                     method: 'POST',
@@ -298,7 +300,6 @@ createApp({
                 }
                 
                 const result = await response.json();
-                console.log('Evaluation result:', result);
                 
                 // Repopulate the table with the evaluated data
                 this.populateTableWithResult(result);
@@ -306,6 +307,16 @@ createApp({
             } catch (error) {
                 console.error('Error evaluating sheet:', error);
                 alert('Error evaluating sheet: ' + error.message);
+            } finally {
+                // Ensure minimum 1 second loading time
+                const elapsedTime = Date.now() - startTime;
+                const minDelay = 1000; // 1 second in milliseconds
+                
+                if (elapsedTime < minDelay) {
+                    await new Promise(resolve => setTimeout(resolve, minDelay - elapsedTime));
+                }
+                
+                this.isEvaluating = false;
             }
         },
         
@@ -358,8 +369,6 @@ createApp({
                     }
                 });
             }
-            
-            console.log('Table repopulated with evaluated data');
         },
         
         // Data export
