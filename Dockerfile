@@ -16,9 +16,6 @@ COPY . .
 # Build the application
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
 
-# Copy frontend files to runtime stage
-COPY index.html app.js ./
-
 # Runtime stage
 FROM alpine:latest
 
@@ -35,8 +32,12 @@ WORKDIR /app
 # Copy binary from builder stage
 COPY --from=builder /app/main .
 
+# Copy frontend files from builder stage
+COPY --from=builder /app/index.html .
+COPY --from=builder /app/app.js .
+
 # Change ownership to non-root user
-RUN chown appuser:appgroup /app/main
+RUN chown appuser:appgroup /app/main /app/index.html /app/app.js
 
 # Switch to non-root user
 USER appuser

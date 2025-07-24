@@ -84,13 +84,11 @@ createApp({
             if (cell.error) {
                 return 'error-cell';
             }
-            if (cell.formula && cell.formula.startsWith('=')) {
-                return 'formula-cell';
-            }
+            // No special styling for formula cells since we're not evaluating them
             return '';
         },
         
-        // Formula evaluation
+        // Formula evaluation - disabled, just display formulas as-is
         evaluateCell(row, col) {
             const cell = this.getCell(row, col);
             const formula = cell.formula;
@@ -101,25 +99,19 @@ createApp({
                 return;
             }
             
-            if (formula.startsWith('=')) {
-                try {
-                    const result = this.evaluateFormula(formula.substring(1), row, col);
-                    cell.displayValue = result.toString();
-                    cell.error = false;
-                } catch (error) {
-                    cell.displayValue = '#ERROR';
-                    cell.error = true;
-                }
-            } else {
-                // Direct value
-                cell.displayValue = formula;
-                cell.error = false;
-            }
+            // Always display the formula as-is, no evaluation
+            cell.displayValue = formula;
+            cell.error = false;
         },
         
         evaluateFormula(formula, currentRow, currentCol) {
             // Remove spaces and convert to uppercase
             formula = formula.replace(/\s/g, '').toUpperCase();
+            
+            // Handle incomplete formulas - just show the formula as-is
+            if (!formula || formula.trim() === '') {
+                return '='; // Return just the equals sign for incomplete formulas
+            }
             
             // Handle basic arithmetic operations
             const operators = ['+', '-', '*', '/', '(', ')'];
@@ -140,6 +132,11 @@ createApp({
             }
             if (current) {
                 tokens.push(current);
+            }
+            
+            // Check if we have valid tokens to evaluate
+            if (tokens.length === 0 || (tokens.length === 1 && tokens[0] === '')) {
+                return '='; // Return just the equals sign for incomplete formulas
             }
             
             // Evaluate tokens
@@ -258,6 +255,58 @@ createApp({
         
         updateHeader(col, value) {
             this.headers[col] = value;
+        },
+        
+        // Evaluate sheet data
+        async evaluateSheet() {
+            try {
+                // Prepare the sheet data in the required format
+                const sheetData = [];
+                
+                // Add header row with all headers (including empty ones)
+                const headerRow = {};
+                this.columns.forEach((col, index) => {
+                    const headerValue = this.getHeaderValue(col);
+                    headerRow[index + 1] = headerValue || '';
+                });
+                sheetData.push(headerRow);
+                
+                // Add data rows
+                for (let row = 1; row <= this.rowCount; row++) {
+                    const rowData = {};
+                    this.columns.forEach((col, index) => {
+                        const cell = this.getCell(row, col);
+                        // Include all cells, including empty ones
+                        rowData[index + 1] = cell.formula || cell.displayValue || '';
+                    });
+                    sheetData.push(rowData);
+                }
+                
+                console.log('Sending sheet data:', sheetData);
+                
+                // Make the HTTP POST request
+                const response = await fetch('/evaluate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(sheetData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                console.log('Evaluation result:', result);
+                
+                // Show success message (you can enhance this with a proper notification system)
+                alert('Sheet evaluated successfully! Check console for details.');
+                
+            } catch (error) {
+                console.error('Error evaluating sheet:', error);
+                alert('Error evaluating sheet: ' + error.message);
+            }
         },
         
         // Data export

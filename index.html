@@ -106,6 +106,15 @@
             background: #e0a800;
         }
 
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #138496;
+        }
+
         .btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
@@ -287,6 +296,7 @@
                 <div class="control-group">
                     <button class="btn btn-warning" @click="clearAll">Clear All</button>
                     <button class="btn btn-primary" @click="exportData">Export CSV</button>
+                    <button class="btn btn-info" @click="evaluateSheet">Evaluate</button>
                 </div>
             </div>
 
@@ -351,7 +361,6 @@
             <div class="status-bar">
                 <span>Selected: {{ selectedCell ? `${selectedCell.row}${selectedCell.col}` : 'None' }}</span>
                 <span style="margin-left: 20px;">Total Cells: {{ rowCount * colCount }}</span>
-                <span style="margin-left: 20px;">Formula Cells: {{ formulaCellCount }}</span>
                 <span v-if="rowCount >= 100" style="margin-left: 20px; color: #dc3545;">⚠️ Max rows (100) reached</span>
                 <span v-if="colCount >= 26" style="margin-left: 20px; color: #dc3545;">⚠️ Max columns (26) reached</span>
             </div>
