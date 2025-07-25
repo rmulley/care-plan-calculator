@@ -2,6 +2,11 @@
 
 A simple golang web application that can be run locally or via Docker (preferred).
 
+## Approach
+I used this project as an opportunity to try and leverage AI as much as possible. Specifically I used Cursor and attempted to solve as many problems as possible with AI prompts. I resorted to writing code manually as necessary, usually to fix bugs or add test cases to both validate the codebase and enable better AI prompts.
+
+In the future I would add more test coverage. Specifically tests for the API routes on the back-end and ideally some kind of automated acceptance tests via the front-end.
+
 ## Features
 
 - **Vue.js Spreadsheet Interface**: Interactive 10x10 to 100x26 spreadsheet
