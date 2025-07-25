@@ -208,6 +208,16 @@
             border: 2px solid #ffc107;
         }
 
+        /* Selected cell styling */
+        .spreadsheet td.selected {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+        }
+
+        .spreadsheet td.selected input {
+            background: #e3f2fd;
+        }
+
         .header-row {
             background-color: #f8f9fa;
             border-bottom: 2px solid #dee2e6;
@@ -366,6 +376,8 @@
                                 :key="`${row}-${col}`"
                                 @click="selectCell(row, col)"
                                 :class="getCellClass(row, col)"
+                                :data-row="row"
+                                :data-col="col"
                             >
                                 <input 
                                     type="text" 
@@ -373,6 +385,7 @@
                                     :value="getCellDisplayValue(row, col)"
                                     @input="updateCell(row, col, $event.target.value)"
                                     @focus="selectCell(row, col)"
+                                    @keydown="handleCellKeydown($event, row, col)"
                                 >
                             </td>
                         </tr>

@@ -82,11 +82,18 @@ createApp({
         
         getCellClass(row, col) {
             const cell = this.getCell(row, col);
+            let classes = [];
+            
             if (cell.error) {
-                return 'error-cell';
+                classes.push('error-cell');
             }
-            // No special styling for formula cells since we're not evaluating them
-            return '';
+            
+            // Add selected cell styling
+            if (this.selectedCell && this.selectedCell.row === row && this.selectedCell.col === col) {
+                classes.push('selected');
+            }
+            
+            return classes.join(' ');
         },
         
         // Formula evaluation - disabled, just display formulas as-is
@@ -421,42 +428,117 @@ createApp({
             return csv;
         },
         
-        // Keyboard navigation
-        handleKeydown(event) {
-            if (!this.selectedCell) return;
+        // Keyboard navigation for individual cells
+        handleCellKeydown(event, row, col) {
+            // Don't handle arrow keys if user is typing
+            if (event.target.selectionStart !== event.target.selectionEnd) {
+                return;
+            }
             
-            const { row, col } = this.selectedCell;
             let newRow = row;
             let newCol = col;
+            let shouldMove = false;
             
             switch (event.key) {
                 case 'ArrowUp':
-                    if (row > 1) newRow = row - 1;
+                    if (row > 1) {
+                        newRow = row - 1;
+                        shouldMove = true;
+                    }
                     break;
                 case 'ArrowDown':
-                    if (row < this.rowCount) newRow = row + 1;
+                    if (row < this.rowCount) {
+                        newRow = row + 1;
+                        shouldMove = true;
+                    }
                     break;
                 case 'ArrowLeft':
                     const colIndex = this.columns.indexOf(col);
-                    if (colIndex > 0) newCol = this.columns[colIndex - 1];
+                    if (colIndex > 0) {
+                        newCol = this.columns[colIndex - 1];
+                        shouldMove = true;
+                    }
                     break;
                 case 'ArrowRight':
                     const colIndexRight = this.columns.indexOf(col);
-                    if (colIndexRight < this.colCount - 1) newCol = this.columns[colIndexRight + 1];
+                    if (colIndexRight < this.colCount - 1) {
+                        newCol = this.columns[colIndexRight + 1];
+                        shouldMove = true;
+                    }
                     break;
                 default:
                     return;
             }
             
-            if (newRow !== row || newCol !== col) {
+            if (shouldMove) {
+                event.preventDefault();
                 this.selectCell(newRow, newCol);
+                
                 // Focus the new cell input
-                setTimeout(() => {
+                this.$nextTick(() => {
+                    const newCellInput = document.querySelector(`[data-row="${newRow}"][data-col="${newCol}"] input`);
+                    if (newCellInput) {
+                        newCellInput.focus();
+                        newCellInput.select(); // Select all text for easy editing
+                    }
+                });
+            }
+        },
+        
+        // Global keyboard navigation (for when no cell is focused)
+        handleKeydown(event) {
+            if (!this.selectedCell) return;
+            
+            // Only handle if no input is focused
+            if (document.activeElement.tagName === 'INPUT') return;
+            
+            const { row, col } = this.selectedCell;
+            let newRow = row;
+            let newCol = col;
+            let shouldMove = false;
+            
+            switch (event.key) {
+                case 'ArrowUp':
+                    if (row > 1) {
+                        newRow = row - 1;
+                        shouldMove = true;
+                    }
+                    break;
+                case 'ArrowDown':
+                    if (row < this.rowCount) {
+                        newRow = row + 1;
+                        shouldMove = true;
+                    }
+                    break;
+                case 'ArrowLeft':
+                    const colIndex = this.columns.indexOf(col);
+                    if (colIndex > 0) {
+                        newCol = this.columns[colIndex - 1];
+                        shouldMove = true;
+                    }
+                    break;
+                case 'ArrowRight':
+                    const colIndexRight = this.columns.indexOf(col);
+                    if (colIndexRight < this.colCount - 1) {
+                        newCol = this.columns[colIndexRight + 1];
+                        shouldMove = true;
+                    }
+                    break;
+                default:
+                    return;
+            }
+            
+            if (shouldMove) {
+                event.preventDefault();
+                this.selectCell(newRow, newCol);
+                
+                // Focus the new cell input
+                this.$nextTick(() => {
                     const newCellInput = document.querySelector(`[data-row="${newRow}"][data-col="${newCol}"] input`);
                     if (newCellInput) {
                         newCellInput.focus();
                     }
-                }, 0);
+                });
             }
         }
     },
